@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>短縮URLメーカー</title>
+  <style>
+    body { font-family: sans-serif; background: #f2f2f2; text-align: center; padding: 4em; }
+    form { background: white; padding: 2em; display: inline-block; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    input { width: 300px; padding: 0.5em; font-size: 1em; }
+    button { padding: 0.5em 1em; font-size: 1em; margin-top: 1em; }
+    #result { margin-top: 1em; }
+    a { color: blue; text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <h1>🔗 短縮URLメーカー</h1>
+  <form id="shortenForm">
+    <input type="url" name="url" id="urlInput" placeholder="リダイレクト先URLを入力" required />
+    <br />
+    <button type="submit">作成する</button>
+  </form>
+  <div id="result"></div>
+
+  <script>
+    const form = document.getElementById('shortenForm');
+    const resultDiv = document.getElementById('result');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const url = document.getElementById('urlInput').value;
+      resultDiv.textContent = '作成中…';
+
+      try {
+        const res = await fetch('/api/shorten', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ originalUrl: url }),
+        });
+        const data = await res.json();
+
+        if (data.error) {
+          resultDiv.textContent = 'エラー: ' + data.error;
+          return;
+        }
+
+        resultDiv.innerHTML = `
+          <p>短縮URL: <a href="${data.shortUrl}" target="_blank" rel="noopener noreferrer">${data.shortUrl}</a></p>
+          <p>ログ確認ページ: <a href="${data.logUrl}" target="_blank" rel="noopener noreferrer">${data.logUrl}</a></p>
+        `;
+      } catch (err) {
+        resultDiv.textContent = '通信エラーが発生しました';
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>アクセスログ一覧</title>
+  <style>
+    body { font-family: sans-serif; padding: 2em; background: #f9f9f9; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ccc; padding: 0.5em; text-align: left; }
+    th { background: #eee; }
+    tr:nth-child(even) { background: #f5f5f5; }
+    .small { font-size: 0.8em; color: #666; }
+  </style>
+</head>
+<body>
+  <h1>アクセスログ一覧</h1>
+  <table id="logTable">
+    <thead>
+      <tr>
+        <th>短縮ID</th>
+        <th>日時</th>
+        <th>クライアントIP</th>
+        <th>すべてのIP</th>
+        <th>User Agent</th>
+        <th>リファラー</th>
+        <th>位置情報 (緯度, 経度)</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    async function loadLogs() {
+      try {
+        const res = await fetch('/logs');
+        const logs = await res.json();
+
+        const tbody = document.querySelector('#logTable tbody');
+        tbody.innerHTML = '';
+
+        logs.forEach(log => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${log.id}</td>
+            <td>${new Date(log.timestamp).toLocaleString()}</td>
+            <td>${log.clientIP}</td>
+            <td><pre class="small">${log.allIPs.join('\n')}</pre></td>
+            <td>${log.userAgent}</td>
+            <td>${log.referer || ''}</td>
+            <td>${log.location ? `${log.location.latitude}, ${log.location.longitude}` : ''}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (e) {
+        alert('ログの取得に失敗しました');
+      }
+    }
+    loadLogs();
+  </script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: kmjs   # Render上でのサービス名に変えてください
+    env: node
+    plan: free            # 無料プラン
+    buildCommand: 'npm install'
+    startCommand: 'node server.js'
+    envVars:
+      - key: PORT
+        value: '10000'    # Renderは環境変数PORTを使うので、server.js側もprocess.env.PORTを使うこと
+    healthCheckPath: '/'  # ルートのヘルスチェック
